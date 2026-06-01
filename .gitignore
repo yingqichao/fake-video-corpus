@@ -1,0 +1,27 @@
+# Downloaded dataset outputs
+FVC/
+
+# Video files
+*.3gp
+*.avi
+*.flv
+*.m2ts
+*.m4v
+*.mkv
+*.mov
+*.mp4
+*.mts
+*.ogv
+*.ts
+*.webm
+*.wmv
+
+# Partial/in-progress downloads
+*.part
+*.part-*
+*.ytdl
+*.ytdl.part
+
+# Python cache files
+__pycache__/
+*.py[cod]

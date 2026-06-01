@@ -38,6 +38,80 @@ The near duplicates are contained in FVC_dup.csv.
 
 The text queries for retrieving the near duplicates are contained in FVC_text_queries.csv.
 
+**Downloading YouTube videos**
+
+Install the downloader dependency:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Download every URL listed in `FVC.csv` sequentially into `FVC/<label>/`:
+
+```bash
+python scripts/download_fvc_youtube.py
+```
+
+By default, files are named with their cascade id, for example `FVC/fake/f14.mp4`.
+The script checks existing output files and `FVC/downloaded.txt`, skips rows that
+were already downloaded, shows a `tqdm` progress bar, and waits a random `0` to
+`1` seconds between download attempts.
+
+Download or test a single URL:
+
+```bash
+python scripts/download_fvc_youtube.py --url "https://www.youtube.com/watch?v=jGuDpD-Y-1s"
+```
+
+You can also select rows by cascade id, for example:
+
+```bash
+python scripts/download_fvc_youtube.py --id f14
+```
+
+The script writes `FVC/download_report.csv`. To change the delay range, pass
+`--interval-min` and `--interval-max`.
+
+For age-restricted or private videos, run the downloader with cookies from a
+browser where you are already signed in to an age-verified YouTube account:
+
+```bash
+python scripts/download_fvc_youtube.py --cookies-from-browser chrome
+```
+
+Firefox works too:
+
+```bash
+python scripts/download_fvc_youtube.py --cookies-from-browser firefox
+```
+
+If your signed-in session is not in the default browser profile, pass the
+profile name, for example:
+
+```bash
+python scripts/download_fvc_youtube.py --cookies-from-browser "chrome:Profile 1"
+```
+
+Alternatively, export a Netscape-format `cookies.txt` file and pass it with
+`--cookies /path/to/cookies.txt`.
+
+Some original seed URLs are old, unavailable, or age-gated. To keep `FVC.csv` as
+the source of labels while trying same-cascade, same-label YouTube reposts when a
+seed URL fails, pass `FVC_dup.csv` as a fallback source:
+
+```bash
+python scripts/download_fvc_youtube.py \
+  --cookies-from-browser chrome+GNOMEKEYRING \
+  --fallback-duplicates FVC_dup.csv
+```
+
+Audit the alignment between the seed videos, near-duplicates, and query metadata
+with:
+
+```bash
+python scripts/audit_fvc_alignment.py
+```
+
 **License and acknowledgement**
 
 The video dataset is provided under the Attribution-NonCommercial-ShareAlike 4.0 International [(CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/).
