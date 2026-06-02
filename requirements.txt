@@ -1,3 +1,5 @@
+datasets
+huggingface_hub
+requests
 yt-dlp
-tqdm
 tqdm

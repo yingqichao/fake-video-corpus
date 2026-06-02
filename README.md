@@ -46,16 +46,18 @@ Install the downloader dependency:
 python -m pip install -r requirements.txt
 ```
 
-Download every URL listed in `FVC.csv` sequentially into `FVC/<label>/`:
+Download every URL listed in `FVC.csv` sequentially into
+`/media/yingqichao/Lenovo/FVC/<label>/`:
 
 ```bash
 python scripts/download_fvc_youtube.py
 ```
 
-By default, files are named with their cascade id, for example `FVC/fake/f14.mp4`.
-The script checks existing output files and `FVC/downloaded.txt`, skips rows that
-were already downloaded, shows a `tqdm` progress bar, and waits a random `0` to
-`1` seconds between download attempts.
+By default, files are named with their cascade id, for example
+`/media/yingqichao/Lenovo/FVC/fake/f14.mp4`. The script checks existing output
+files and `/media/yingqichao/Lenovo/FVC/downloaded.txt`, skips rows that were
+already downloaded, shows a `tqdm` progress bar, and waits a random `0` to `1`
+seconds between download attempts.
 
 Download or test a single URL:
 
@@ -69,8 +71,8 @@ You can also select rows by cascade id, for example:
 python scripts/download_fvc_youtube.py --id f14
 ```
 
-The script writes `FVC/download_report.csv`. To change the delay range, pass
-`--interval-min` and `--interval-max`.
+The script writes `/media/yingqichao/Lenovo/FVC/download_report.csv`. To change
+the delay range, pass `--interval-min` and `--interval-max`.
 
 For age-restricted or private videos, run the downloader with cookies from a
 browser where you are already signed in to an age-verified YouTube account:
@@ -111,6 +113,56 @@ with:
 ```bash
 python scripts/audit_fvc_alignment.py
 ```
+
+**Title-only NVIDIA LLM inference**
+
+The repo includes a title-only inference script that reads `event_title` from
+`FVC_text_queries.csv`, asks the NVIDIA/OpenAI-compatible chat API to predict
+only `real` or `fake`, stores the model reasoning, and compares the prediction
+against the CSV `label` column.
+
+The system prompt lives in `scripts/fvc_language_prompt.txt`. You can edit that
+file directly or pass another prompt with `--prompt-file`.
+
+Credentials are read from `.env` or the shell environment. `.env` is intentionally
+ignored by git. A local `.env` can be created from `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Set either `NVIDIA_API_KEY` or `OPENAI_API_KEY` in `.env`. The default endpoint
+and model match the NVIDIA inference API pattern used in the related
+FakeSV-Thinking-Dev repo:
+
+```text
+NVIDIA_API_URL=https://inference-api.nvidia.com/v1/chat/completions
+NVIDIA_MODEL=openai/openai/gpt-5.1
+```
+
+Run a one-row smoke test:
+
+```bash
+python scripts/infer_fvc_titles_nvidia.py \
+  --id f0 \
+  --output outputs/fvc_title_llm_predictions_smoke.json
+```
+
+Run all 380 seed titles:
+
+```bash
+python scripts/infer_fvc_titles_nvidia.py \
+  --resume \
+  --output outputs/fvc_title_llm_predictions.json
+```
+
+The output JSON contains the prompt, local title-pattern analysis, per-row
+prediction, reasoning, raw model response, and correctness summary. The prompt
+uses only the title text and includes moderate corpus-level shortcut cues for
+obvious fake patterns such as paranormal/cryptid wording, impossible spectacle
+claims, and highly sensational military-strike phrasing. Some rows in
+`FVC_text_queries.csv` contain unquoted commas; the script repairs obvious
+comma-split `event_title` fragments before sending the title to the model.
 
 **License and acknowledgement**
 

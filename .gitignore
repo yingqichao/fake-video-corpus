@@ -1,5 +1,7 @@
 # Downloaded dataset outputs
 FVC/
+FVC_HF/
+outputs/
 
 # Video files
 *.3gp
@@ -21,6 +23,15 @@ FVC/
 *.part-*
 *.ytdl
 *.ytdl.part
+
+# Credentials and local runtime configuration
+.env
+.env.*
+!.env.example
+credentials/
+secrets/
+*.key
+*.pem
 
 # Python cache files
 __pycache__/

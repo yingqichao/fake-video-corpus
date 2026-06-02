@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download YouTube videos listed in FVC.csv into ./FVC."""
+"""Download YouTube videos listed in FVC.csv into the external FVC directory."""
 
 from __future__ import annotations
 
@@ -13,6 +13,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 from urllib.parse import parse_qs, urlparse
+
+
+DEFAULT_OUTPUT_DIR = Path("/media/yingqichao/Lenovo/FVC")
 
 
 @dataclass(frozen=True)
@@ -275,10 +278,14 @@ def write_report(report_path: Path, report_rows: list[dict[str, str]]) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download YouTube videos from FVC.csv into ./FVC."
+        description=f"Download YouTube videos from FVC.csv into {DEFAULT_OUTPUT_DIR}."
     )
     parser.add_argument("--csv", default="FVC.csv", help="CSV containing video_url rows.")
-    parser.add_argument("--output-dir", default="FVC", help="Download destination.")
+    parser.add_argument(
+        "--output-dir",
+        default=str(DEFAULT_OUTPUT_DIR),
+        help=f"Download destination. Defaults to {DEFAULT_OUTPUT_DIR}.",
+    )
     parser.add_argument(
         "--url",
         action="append",
@@ -472,6 +479,10 @@ def main() -> int:
         return 0
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    if not args.quiet:
+        print(f"Output directory: {output_dir}")
+        print(f"Existing downloads are checked under: {output_dir}")
+
     fallback_rows: dict[str, list[VideoRow]] = {}
     if args.fallback_duplicates:
         fallback_rows = group_rows_by_cascade(load_csv(args.fallback_duplicates))
